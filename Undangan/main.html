@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Pernikahan</title>
+    <!-- Tailwind CSS CDN untuk styling yang cepat dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts untuk font 'Poppins' -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,600;1,400&family=Yesteryear&display=swap" rel="stylesheet">
+    <!-- Font Awesome untuk ikon tombol play/pause dan copy -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* Definisi font kustom dari file .ttf */
+        @font-face {
+            font-family: 'Ananda';
+            src: url('https://raw.githubusercontent.com/ravejet-project16/digital_invitation_assets/main/Ananda%20Personal%20Use.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        
+        @font-face {
+            font-family: 'Hijrnotes';
+            src: url('https://raw.githubusercontent.com/ravejet-project16/digital_invitation_assets/main/Hijrnotes_PERSONAL_USE_ONLY.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden; /* Mencegah scrolling horizontal */
+            overflow-y: hidden; /* Secara default, scrolling vertikal dinonaktifkan */
+        }
+        .font-Yesteryear {
+            font-family: 'Yesteryear', cursive;
+        }
+        .font-hijrnotes {
+            font-family: 'Hijrnotes', sans-serif;
+        }
+        /* Gaya gradasi shades of twilight blue untuk tombol Buka Undangan */
+        .btn-twilight-gradient {
+            background: linear-gradient(20deg, #1A237E, #3949AB, #0D47A1); /* Gradasi biru senja */
+            padding: 10px 24px;
+            font-weight: 600;
+            border-radius: 9999px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: all 0.3s ease-in-out;
+            border: none;
+            color: white;
+        }
+        .btn-twilight-gradient:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        /* Styling untuk transisi halaman */
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            min-height: 100vh;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 1s ease-in-out, visibility 0s linear 1s; 
+        }
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transition-delay: 0s;
+            position: relative;
+        }
+
+        /* Styling untuk video latar belakang */
+        .video-background {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
+            z-index: -100; /* Menempatkan video di belakang konten */
+            object-fit: cover; /* Memastikan video mengisi seluruh layar */
+        }
+
+        /* Overlay untuk meningkatkan keterbacaan teks */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Overlay gelap dengan transparansi */
+            z-index: -99;
+        }
+        
+        /* Gaya untuk kotak waktu countdown dengan gradasi biru senja */
+        .time-box {
+            background: linear-gradient(20deg, #1A237E, #3949AB, #0D47A1);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 3.5rem; 
+            height: 3.5rem; 
+        }
+        @media (min-width: 640px) {
+            .time-box {
+                width: 4rem; 
+                height: 4rem; 
+            }
+        }
+        .time-box span {
+            line-height: 1;
+        }
+
+        /* Gaya untuk tombol musik baru */
+        .music-toggle-btn {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5); /* Hitam transparan 50% */
+            backdrop-filter: blur(5px);
+            border: none;
+            /* Mengubah warna ikon menjadi baby blue */
+            color: #89CFF0; 
+            font-size: 1.5rem;
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s, background-color 0.2s;
+            opacity: 0;
+            visibility: hidden;
+            position: relative; /* Menambahkan ini untuk positioning pseudo-element */
+        }
+        .music-toggle-btn:hover {
+            transform: scale(1.1);
+        }
+        .music-toggle-btn.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Gaya untuk lingkaran progres yang berputar */
+        .music-toggle-btn.is-playing::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 3px solid rgba(137, 207, 240, 0.3); /* Border transparan */
+            border-top-color: #89CFF0; /* Hanya bagian atas yang berwarna baby blue */
+            animation: spin 1s linear infinite; /* Animasi berputar */
+        }
+
+        /* Keyframes untuk animasi berputar */
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Gaya untuk tombol salin */
+        .copy-btn {
+            background-color: #3949AB;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+        }
+        .copy-btn:hover {
+            background-color: #1A237E;
+        }
+        
+        /* --- ANIMASI DITAMBAHKAN --- */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animated-item {
+            opacity: 0; 
+        }
+        
+        .animated-item.animate {
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        /* Gaya untuk pesan salin rekening */
+        #copy-message {
+            position: fixed;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            z-index: 20;
+        }
+        #copy-message.show {
+            opacity: 1;
+        }
+
+        /* Gaya untuk galeri */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 100%;
+        }
+        @media (min-width: 768px) {
+            .gallery-container {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Lapisan overlay hitam untuk transisi -->
+    <div id="transition-overlay" class="fixed inset-0 bg-black z-50 opacity-0 invisible transition-opacity duration-500"></div>
+    
+    <!-- Kotak pesan untuk menyalin rekening -->
+    <div id="copy-message" class="hidden">Nomor rekening berhasil disalin!</div>
+
+    <!-- Audio untuk musik latar -->
+    <!-- Atribut autoplay dihapus agar musik tidak diputar secara otomatis oleh browser -->
+    <audio id="background-music" loop>
+        <source src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/bgsong-rama.mp3" type="audio/mp3">
+    </audio>
+
+    <!-- Halaman Pertama (Pembuka) -->
+    <div id="page-1" class="page active flex items-center justify-center p-4 md:p-8 relative">
+        
+        <!-- Video Latar Belakang -->
+        <video class="video-background" autoplay muted loop>
+            <source src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/bg_vid.mp4" type="video/mp4">
+            <!-- Pesan fallback jika browser tidak mendukung video -->
+            Browser Anda tidak mendukung tag video.
+        </video>
+
+        <!-- Overlay untuk membuat teks lebih mudah dibaca di atas video -->
+        <div class="overlay"></div>
+
+        <div class="bg-black/40 backdrop-blur-sm p-8 md:p-12 rounded-3xl shadow-2xl w-11/12 max-w-sm text-center z-10">
+            <div class="text-white text-xs md:text-sm font-normal mb-8 leading-relaxed">
+                <p>With heartfelt joy,</p>
+                <p class="mt-2">We cordially invite you to celebrate the union of</p>
+            
+            <div class="my-5">
+                <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/title1.svg" alt="Nama Pasangan">
+            </div>
+                <p>as we exchange vows and begin our journey together.</p>
+            </div>
+            <!-- Menggunakan kelas CSS baru untuk gradasi biru senja -->
+            <button id="bukaUndanganBtn" class="btn-twilight-gradient text-white focus:outline-none my-5">
+                Buka Undangan
+            </button>
+
+            <div class="text-white text-[0.6rem] md:text-xs font-normal mt-4 leading-relaxed">
+                <p>Your presence would mean the world to us as we mark this special occasion.</p>
+                <p class="mt-1 italic underline">Kehadiran Anda akan sangat berarti bagi kami saat kami memperingati acara spesial ini.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Konten Utama (Halaman 2 & 3) -->
+    <div id="main-content" class="page flex flex-col items-center p-4 md:p-8 gap-4 overflow-y-auto">
+        
+        <!-- Latar belakang tetap berupa gambar untuk halaman 2 dan 3 -->
+        <div class="fixed inset-0 bg-cover bg-center bg-fixed" style="background-image: url('https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/rama-bg.jpg');"></div>
+        <div class="fixed inset-0 bg-black/40"></div>
+
+        <!-- Bagian Save the Date -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-6 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/SVD.png" alt="Save the Date">
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Galeri Foto 1: di bawah Save the Date -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <div class="gallery-container">
+                <!-- Stack Horizontal 1 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <!-- Foto 1-1 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g2.jpg" alt="Foto galeri 1" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue hums like silence after heartbreak.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-2 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h2.jpeg" alt="Foto galeri 2" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Teal is the breath between forgiveness and forgetting.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-3 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g3.jpg" alt="Foto galeri 3" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Midnight blue mourns without sound.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-4 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h3.jpeg" alt="Foto galeri 4" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Powder blue cradles the ache of innocence.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stack Horizontal 2 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 md:mt-0">
+                    <!-- Foto 1-5 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g4.jpg" alt="Foto galeri 5" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Indigo folds time into longing.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-6 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h4.jpeg" alt="Foto galeri 6" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Cobalt burns like truth buried too deep.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-7 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g5.jpg" alt="Foto galeri 7" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Sky blue dreams of things it cannot hold.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 1-8 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h5.jpeg" alt="Foto galeri 8" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:opacity-100">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Steel blue stands where softness once lived.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Bagian Info Pasangan & Countdown -->
+        <div class="bg-black/40 backdrop-blur-sm p-8 md:p-12 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <!-- Foto Pasangan -->
+            <div class="relative w-48 h-48 mx-auto rounded-full p-[4px] bg-[#1A237E] shadow-xl">
+                <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/bg-r.jpg" alt="Foto Pasangan Richard dan Olivia" class="w-full h-full rounded-full object-cover">
+            </div>
+            <!-- Nama Pasangan -->
+            <div class="my-5">
+                <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/title2.svg" alt="Nama Pasangan">
+            </div>
+
+            <!-- Countdown Timer -->
+            <h3 class="font-Yesteryear text-white text-2xl md:text-3xl leading-none mb-4">New Moon Wedding</h3>
+            <div id="countdown-timer" class="flex justify-center items-center space-x-2 text-white">
+                <div class="time-box">
+                    <span id="days" class="text-xl sm:text-2xl font-bold">00</span>
+                    <span class="text-[0.6rem] sm:text-xs font-light">Hari</span>
+                </div>
+                <div class="time-box">
+                    <span id="hours" class="text-xl sm:text-2xl font-bold">00</span>
+                    <span class="text-[0.6rem] sm:text-xs font-light">Jam</span>
+                </div>
+                <div class="time-box">
+                    <span id="minutes" class="text-xl sm:text-2xl font-bold">00</span>
+                    <span class="text-[0.6rem] sm:text-xs font-light">Menit</span>
+                </div>
+                <div class="time-box">
+                    <span id="seconds" class="text-xl sm:text-2xl font-bold">00</span>
+                    <span class="text-[0.6rem] sm:text-xs font-light">Detik</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Bagian Our Love Story -->
+        <!-- Memperbarui latar belakang dengan gambar yang diminta -->
+        <div class="p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10 relative bg-cover bg-center" style="background-image: url('https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g1.jpg');">
+            <!-- Overlay di dalam div agar teks tetap mudah dibaca -->
+            <div class="bg-black/40 backdrop-blur-sm p-4 rounded-xl flex flex-col items-center justify-center">
+                <i class="fas fa-heart text-[#89CFF0] text-4xl mb-4"></i>
+                <p class="text-white italic text-sm leading-relaxed font-poppins">
+                    "The sun rises not to chase the night, but to kiss the shadows you left behind in my heart. Like you did when breaking the dawn."
+                </p>
+            </div>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Galeri Foto 2: di bawah Our Love Story -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <div class="gallery-container">
+                <!-- Stack Horizontal 1 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <!-- Foto 2-1 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g6.jpg" alt="Foto galeri 1" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Azure drips from the eyes of memory.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-2 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h6.jpeg" alt="Foto galeri 2" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Navy carries the weight of unsaid prayers.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-3 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g7.jpg" alt="Foto galeri 3" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Ice blue kisses like a goodbye that never arrived.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-4 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h7.jpeg" alt="Foto galeri 4" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue is the echo of everything I almost became.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stack Horizontal 2 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 md:mt-0">
+                    <!-- Foto 2-5 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g8.jpg" alt="Foto galeri 5" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue flickers like memory caught between truth and tenderness.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-6 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h8.jpeg" alt="Foto galeri 6" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Cerulean sighs where longing meets the edge of silence.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-7 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g9.jpg" alt="Foto galeri 7" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Twilight blue folds the day into a quiet farewell.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 2-8 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h9.jpeg" alt="Foto galeri 8" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue bruises the sky with everything we dared to feel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+        
+        <!-- Halaman Ketiga - Dimulai di sini -->
+        
+        <!-- Bagian Ayat Suci -->
+        <div class="bg-black/40 backdrop-blur-sm p-4 md:p-5 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <i class="fas fa-quote-right text-[#89CFF0] text-4xl mb-4"></i>
+            <p class="text-white text-base mb-4 leading-relaxed font-semibold">
+                وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً ۚ إِنَّ فِي ذَٰلِكَ لَآيَاتٍ لِّقَوْمٍ يَتَفَكَّرُونَ
+            </p>
+            <p class="text-white italic text-xs leading-relaxed font-poppins">
+                "Dan di antara tanda-tanda kebesaran-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang."
+            </p>
+            <p class="text-white italic text-xs mt-2 font-poppins">- Q.S. Ar-Rum: 21</p>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Bagian Nama Orang Tua -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <i class="fas fa-heart text-[#89CFF0] text-4xl mb-4"></i>
+            <div class="relative w-full max-w-md mx-auto">
+                <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/bride_groom.svg" class="absolute inset-0 w-full h-full" alt="Pengantin Pria dan Wanita">
+                <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/bride_groom.png" class="relative w-full" alt="Pengantin Pria dan Wanita">
+            </div>
+        </div>
+        
+        <!-- Divider baru -->
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+        
+        <!-- Container baru untuk gambar garis dekoratif -->
+        <!-- Mengembalikan ke versi semula, tanpa penyesuaian ukuran dan blur -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/line.jpg" alt="Garis Dekoratif" class="w-full h-auto rounded-lg">
+        </div>
+
+        <!-- Divider sebelum Detail Acara -->
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+        
+        <!-- Bagian Detail Acara -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <i class="fas fa-map-location-dot text-[#89CFF0] text-4xl mb-4"></i>
+            <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+                <!-- Layout Akad Nikah -->
+                <div class="flex-1 bg-black/10 p-4 rounded-xl">
+                    <h4 class="font-poppins text-lg font-semibold text-[#89CFF0]">Akad Nikah</h4>
+                    <i class="fa-solid fa-calendar text-white"></i>
+                    <p class="font-poppins text-sm mt-2 text-white">Minggu, 5 Oktober 2025</p>
+                    <i class="fa-regular fa-clock text-white"></i>
+                    <p class="font-poppins text-sm text-white">09.00 - 11.00 WIB</p>
+                    <i class="fa-solid fa-location-dot text-white"></i>
+                    <p class="font-poppins text-xs font-light text-white">Kp. Sindangreret, RT.03/RW.08, Desa. Sukasari, Kec. Pameungpeuk, Kab. Bandung - Jawa Barat</p>
+                </div>
+                <!-- Layout Resepsi -->
+                <div class="flex-1 bg-black/10 p-4 rounded-xl">
+                    <h4 class="font-poppins text-lg font-semibold text-[#89CFF0]">Resepsi</h4>
+                    <i class="fa-solid fa-calendar text-white"></i>
+                    <p class="font-poppins text-sm mt-2 text-white">Minggu, 5 Oktober 2025</p>
+                    <i class="fa-regular fa-clock text-white"></i>
+                    <p class="font-poppins text-sm text-white">11.00 - SELESAI</p>
+                    <i class="fa-solid fa-location-dot text-white"></i>
+                    <p class="font-poppins text-xs font-light text-white">Kp. Sindangreret, RT.03/RW.08, Desa. Sukasari, Kec. Pameungpeuk, Kab. Bandung - Jawa Barat</p>
+                </div>
+            </div>
+            
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d247.4957249200909!2d107.5967452839273!3d-7.017326465864936!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68eb5e1bd644f3%3A0x30b5108edbb52069!2sLapagan%20Bola%20MA%20AL-HUDA!5e0!3m2!1sid!2sid!4v1755031901839!5m2!1sid!2sid" width="100%" height="200" style="border:0; margin-top: 1rem; border-radius: 1rem;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        </div>
+
+        <div class="bg-white/50 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+
+        <!-- Galeri Foto 3: di bawah Detail Acara -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <div class="gallery-container">
+                <!-- Stack Horizontal 1 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                    <!-- Foto 3-1 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h10.jpeg" alt="Foto galeri 1" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue drips like time unraveling in reverse.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-2 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g10.jpg" alt="Foto galeri 2" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Teal trembles where memory meets mercy.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-3 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h11.jpeg" alt="Foto galeri 3" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Indigo listens to the silence between heartbeats.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-4 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g16.jpg" alt="Foto galeri 4" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue flickers in the space grief forgot to fill.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Stack Horizontal 2 -->
+                <div class="col-span-2 md:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2 mt-2 md:mt-0">
+                    <!-- Foto 3-5 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h12.jpeg" alt="Foto galeri 5" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Cerulean carries the weight of almost.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-6 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/g12.jpg" alt="Foto galeri 6" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue folds into itself like a secret never spoken.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-7 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/h13.jpeg" alt="Foto galeri 7" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Twilight blue hums with the ache of becoming.</p>
+                        </div>
+                    </div>
+                    <!-- Foto 3-8 -->
+                    <div class="relative overflow-hidden rounded-lg group">
+                        <img src="https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/nisa2.jpg" alt="Foto galeri 8" class="w-full h-full object-cover rounded-lg transform transition-transform duration-300 group-hover:scale-110">
+                        <div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                            <p class="text-white text-sm font-semibold">Blue lingers like a name I no longer say aloud.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bagian Amplop Digital dan Gift -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <i class="fa-solid fa-gift text-[#89CFF0] text-4xl mb-4"></i>
+            <h4 class="font-poppins text-xl font-semibold text-white mb-4">Amplop Digital & Gift</h4>
+            <p class="text-white text-sm italic font-poppins mb-4">
+                Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan tanda kasih, dapat disalurkan melalui virtual account atau mengirim kado.
+            </p>
+
+            <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+                <!-- Amplop Digital -->
+                <div class="flex-1 bg-black/10 p-4 rounded-xl">
+                    <h5 class="text-white font-semibold"><i class="fa-solid fa-wallet"></i></h5>
+                    <p class="font-poppins text-M font-BOLD text-white mb-2">No. Rek: <span id="rekening-number">8101050696</span></p>
+                    <p class="font-poppins text-xs font-light text-white mt-2"><span id="bank-name">[BCA] Ramadhan Burhani Sultan</span></p>
+
+                    <button class="copy-btn mt-2" data-clipboard-target="#rekening-number">
+                        <i class="fa-solid fa-copy"></i> Salin
+                    </button>
+                </div>
+                <!-- Gift Box -->
+                <div class="flex-1 bg-black/10 p-4 rounded-xl">
+                    <h5 class="text-white font-semibold"><i class="fa-solid fa-wallet"></i></h5>
+                    <p class="font-poppins text-M font-BOLD text-white mb-2">No. Rek: <span id="rekening-number-2">089522975674</span></p>
+                    <p class="font-poppins text-xs font-light text-white mt-2"><span id="bank-name">[DANA] Anisa Tri Handayani</span></p>
+
+                    <button class="copy-btn mt-2" data-clipboard-target="#rekening-number-2">
+                        <i class="fa-solid fa-copy"></i> Salin
+                    </button>
+                </div>
+            </div>
+
+        <div class="bg-white/0 h-[1px] w-1/3 my-2 animated-item z-10"></div>
+        <div class="p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10 relative bg-cover bg-center" style="background-image: url('https://raw.githubusercontent.com/ravejet-project16/rama-aset/main/r2.jpg');">
+        <!-- Bagian Penutup -->
+        <div class="bg-black/40 backdrop-blur-sm p-5 md:p-7 rounded-3xl shadow-2xl w-full max-w-xl text-center animated-item z-10">
+            <p class="text-white text-sm italic font-poppins mb-4">
+                Merupakan suatu kehormatan dan kebahagiaan bagi kami sekeluarga, apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu.
+                Atas kehadiran dan doanya, kami ucapkan terima kasih.
+            </p>
+            <p class="font-poppins text-sm text-white font-semibold">Hormat Kami,</p>
+            <p class="font-Yesteryear text-white text-4xl leading-none mt-2">Ramadhan & Anisa</p>
+        </div>
+
+        <div class="h-16"></div>
+    </div>
+
+    <!-- Tombol untuk memutar/menghentikan musik -->
+    <button id="music-toggle-btn" class="music-toggle-btn">
+        <i id="music-icon" class="fa-solid fa-play"></i>
+    </button>
+    
+    <script>
+        // Ambil elemen HTML yang dibutuhkan
+        const bukaUndanganBtn = document.getElementById('bukaUndanganBtn');
+        const page1 = document.getElementById('page-1');
+        const mainContent = document.getElementById('main-content');
+        const transitionOverlay = document.getElementById('transition-overlay');
+        const body = document.body;
+        const backgroundMusic = document.getElementById('background-music');
+        const musicToggleBtn = document.getElementById('music-toggle-btn');
+        const musicIcon = document.getElementById('music-icon');
+
+        // Target tanggal pernikahan (Ganti sesuai tanggal acara)
+        const weddingDate = new Date('October 5, 2025 08:00:00').getTime();
+
+        // Variabel untuk Intersection Observer
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1 // Ketika 10% elemen terlihat
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animated-item').forEach(item => {
+            observer.observe(item);
+        });
+
+        // Fungsi untuk mengontrol musik
+        function toggleMusic() {
+            if (backgroundMusic.paused) {
+                backgroundMusic.play();
+                musicToggleBtn.classList.add('is-playing');
+                musicIcon.classList.remove('fa-play');
+                musicIcon.classList.add('fa-pause');
+            } else {
+                backgroundMusic.pause();
+                musicToggleBtn.classList.remove('is-playing');
+                musicIcon.classList.remove('fa-pause');
+                musicIcon.classList.add('fa-play');
+            }
+        }
+
+        // Event listener untuk tombol Buka Undangan
+        bukaUndanganBtn.addEventListener('click', () => {
+            // Animasi transisi overlay
+            transitionOverlay.classList.remove('invisible', 'opacity-0');
+            transitionOverlay.classList.add('opacity-100');
+
+            setTimeout(() => {
+                page1.classList.remove('active');
+                mainContent.classList.add('active');
+                body.style.overflowY = 'auto'; // Mengaktifkan scrolling setelah transisi
+                
+                // Mulai memutar musik dan tampilkan tombol musik
+                backgroundMusic.play();
+                musicToggleBtn.classList.add('is-visible', 'is-playing');
+                musicIcon.classList.remove('fa-play');
+                musicIcon.classList.add('fa-pause');
+                
+                // Sembunyikan overlay setelah transisi selesai
+                transitionOverlay.classList.remove('opacity-100');
+                transitionOverlay.classList.add('opacity-0', 'invisible');
+            }, 500); // Durasi transisi
+        });
+
+        // Event listener untuk tombol musik
+        musicToggleBtn.addEventListener('click', () => {
+            toggleMusic();
+        });
+        
+        // Memilih semua tombol salin
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        const copyMessage = document.getElementById('copy-message');
+
+        copyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-clipboard-target');
+                const targetElement = document.querySelector(targetId);
+                
+                // Gunakan document.execCommand untuk kompatibilitas yang lebih baik
+                const el = document.createElement('textarea');
+                el.value = targetElement.innerText;
+                document.body.appendChild(el);
+                el.select();
+                document.execCommand('copy');
+                document.body.removeChild(el);
+
+                // Tampilkan pesan sukses
+                copyMessage.classList.remove('hidden');
+                copyMessage.classList.add('show');
+
+                // Sembunyikan pesan setelah 3 detik
+                setTimeout(() => {
+                    copyMessage.classList.remove('show');
+                    setTimeout(() => {
+                        copyMessage.classList.add('hidden');
+                    }, 500); // Sembunyikan sepenuhnya setelah transisi opacity selesai
+                }, 3000);
+            });
+        });
+
+        // Fungsi untuk mengupdate countdown timer setiap detik
+        const countdownFunction = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            // Hitung waktu untuk hari, jam, menit, dan detik
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            // Tampilkan hasil di elemen yang sesuai
+            document.getElementById("days").innerText = days.toString().padStart(2, '0');
+            document.getElementById("hours").innerText = hours.toString().padStart(2, '0');
+            document.getElementById("minutes").innerText = minutes.toString().padStart(2, '0');
+            document.getElementById("seconds").innerText = seconds.toString().padStart(2, '0');
+
+            // Jika hitung mundur selesai
+            if (distance < 0) {
+                clearInterval(countdownFunction);
+                document.getElementById("countdown-timer").innerHTML = "Wedding Day!";
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

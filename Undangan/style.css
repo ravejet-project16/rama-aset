@@ -1,0 +1,227 @@
+<style>
+/* Definisi font kustom dari file .ttf */
+@font-face {
+    font-family: 'Ananda';
+    src: url('https://raw.githubusercontent.com/ravejet-project16/digital_invitation_assets/main/Ananda%20Personal%20Use.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Hijrnotes';
+    src: url('https://raw.githubusercontent.com/ravejet-project16/digital_invitation_assets/main/Hijrnotes_PERSONAL_USE_ONLY.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    overflow-x: hidden; /* Mencegah scrolling horizontal */
+    overflow-y: hidden; /* Secara default, scrolling vertikal dinonaktifkan */
+}
+.font-Yesteryear {
+    font-family: 'Yesteryear', cursive;
+}
+.font-hijrnotes {
+    font-family: 'Hijrnotes', sans-serif;
+}
+/* Gaya gradasi shades of twilight blue untuk tombol Buka Undangan */
+.btn-twilight-gradient {
+    background: linear-gradient(20deg, #1A237E, #3949AB, #0D47A1); /* Gradasi biru senja */
+    padding: 10px 24px;
+    font-weight: 600;
+    border-radius: 9999px;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    transition: all 0.3s ease-in-out;
+    border: none;
+    color: white;
+}
+.btn-twilight-gradient:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Styling untuk transisi halaman */
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    min-height: 100vh;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease-in-out, visibility 0s linear 1s; 
+}
+.page.active {
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0s;
+    position: relative;
+}
+
+/* Styling untuk video latar belakang */
+.video-background {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100; /* Menempatkan video di belakang konten */
+    object-fit: cover; /* Memastikan video mengisi seluruh layar */
+}
+
+/* Overlay untuk meningkatkan keterbacaan teks */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Overlay gelap dengan transparansi */
+    z-index: -99;
+}
+
+/* Gaya untuk kotak waktu countdown dengan gradasi biru senja */
+.time-box {
+    background: linear-gradient(20deg, #1A237E, #3949AB, #0D47A1);
+    color: white;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem; 
+    height: 3.5rem; 
+}
+@media (min-width: 640px) {
+    .time-box {
+        width: 4rem; 
+        height: 4rem; 
+    }
+}
+.time-box span {
+    line-height: 1;
+}
+
+/* Gaya untuk tombol musik baru */
+.music-toggle-btn {
+    /* Perubahan utama ada di sini */
+    position: fixed; /* Membuat posisi tombol tetap relatif terhadap viewport */
+    bottom: 1rem;    /* Jarak 1rem dari bawah layar */
+    left: 1rem;      /* Jarak 1rem dari kiri layar */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5); /* Hitam transparan 50% */
+    backdrop-filter: blur(5px);
+    border: none;
+    /* Mengubah warna ikon menjadi baby blue */
+    color: #89CFF0; 
+    font-size: 1.5rem;
+    cursor: pointer;
+    outline: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: transform 0.2s, background-color 0.2s;
+    opacity: 0;
+    visibility: hidden;
+}
+.music-toggle-btn:hover {
+    transform: scale(1.1);
+}
+.music-toggle-btn.is-visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Gaya untuk lingkaran progres yang berputar */
+.music-toggle-btn.is-playing::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid rgba(137, 207, 240, 0.3); /* Border transparan */
+    border-top-color: #89CFF0; /* Hanya bagian atas yang berwarna baby blue */
+    animation: spin 1s linear infinite; /* Animasi berputar */
+}
+
+/* Keyframes untuk animasi berputar */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Gaya untuk tombol salin */
+.copy-btn {
+    background-color: #3949AB;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+.copy-btn:hover {
+    background-color: #1A237E;
+}
+
+/* --- ANIMASI DITAMBAHKAN --- */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animated-item {
+    opacity: 0; 
+}
+
+.animated-item.animate {
+    animation: fadeInUp 1s ease-out forwards;
+}
+
+/* Gaya untuk pesan salin rekening */
+#copy-message {
+    position: fixed;
+    bottom: 5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    z-index: 20;
+}
+#copy-message.show {
+    opacity: 1;
+}
+
+/* Gaya untuk galeri */
+.gallery-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+}
+@media (min-width: 768px) {
+    .gallery-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+</style>
